@@ -1,0 +1,62 @@
+import requests
+
+S = requests.Session()
+
+URL = "https://fi.wikipedia.org/w/api.php"
+
+
+PARAMS_1 = {
+    "action": "query",
+    "meta": "tokens",
+    "type": "login",
+    "format": "json"
+}
+
+
+R = S.get(url=URL, params=PARAMS_1)
+DATA = R.json()
+
+LOGIN_TOKEN = DATA['query']['tokens']['logintoken']
+
+
+PARAMS_2 = {
+    "action": "login",
+    "lgname": "",
+    "lgpassword": "",
+    "format": "json",
+    "lgtoken": LOGIN_TOKEN
+}
+
+
+R = S.post(URL, data=PARAMS_2)
+DATA = R.json()
+
+
+PARAMS_3 = {
+    "action": "query",
+    "meta": "tokens",
+    "format": "json"
+}
+
+R = S.get(url=URL, params=PARAMS_3)
+DATA = R.json()
+
+CSRF_TOKEN = DATA["query"]["tokens"]["csrftoken"]
+
+
+PARAMS_4 = {
+    "token": CSRF_TOKEN,
+    "action": "query",  
+    "format": "json"
+}
+
+
+R = S.post(URL, data=PARAMS_4)
+DATA = R.json()
+
+if 'error' in DATA:
+    print("Kirjautuminen epäonnistui. Virheviesti:", DATA['error']['info'])
+else:
+    print("Kirjautuminen onnistui!")
+
+print(DATA)
